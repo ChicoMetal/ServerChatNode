@@ -1,0 +1,122 @@
+doctype html
+html(lang="es")
+	
+	head
+		meta(charset="utf-8")
+		title Simple Chat Nodejs
+		link(rel="stylesheet", href="/bower_components/bootstrap/dist/css/bootstrap.min.css")
+
+	body
+		div.container
+			div.row
+				h1 Chat con NodeJs
+
+				div.col-xs-4
+					h2 Nuevo mensaje
+					form(action="")
+						
+						div.form-group
+							label(for="username") UserName:
+							input#username.form-control(type="text", value="1104379")
+
+						div.form-group
+							label(for="destinatario") Destinatario
+							input#destinatario.form-control(type="text",value="7")
+						
+						div.form-group
+							label(for="message") Mesagge:
+							textarea#message.form-control
+						div.row
+							div.form-group.col-xs-4
+								button#getOld.btn.btn-primary(type="button") Get mensajes
+
+							div.form-group.col-xs-4
+								button#send-message.btn.btn-primary(type="button") Send message
+
+							div.form-group.col-xs-4
+								button#sendIdentificadore.btn.btn-primary(type="button") Send Identificadores
+
+				div.col-xs-8
+					h2 Mensajes
+					ul(id="messages")
+
+		script(src="/bower_components/jquery/dist/jquery.js")
+		script(src="/bower_components/bootstrap/dist/js/bootstrap.min.js")
+		script(src="/socket.io/socket.io.js")
+
+		//script de la aplicacion
+		script.
+			var socket = io();			
+
+			$(document).ready(function(){
+
+
+			});
+
+			$('#sendIdentificadore').on('click', function(){//evento temporal para enviar los identificadores del socket
+				var identificadores = {
+					remitente: $('#username').val(),
+					receptor: $('#destinatario').val(),
+					socket: socket.id
+					}
+					
+				socket.emit('saveIdSocket', identificadores );//envio el id del socket junto a su ID para identificar el socket destinatario de los mensajes entrantes
+			});
+
+
+			$('#send-message').on('click', function(){//envia el mensaje
+					
+				var message = {
+					Mensaje 	 : $('#message').val(),
+					Remitente 	 : $('#username').val(),
+					Destinatario : $('#destinatario').val()
+				};
+
+				//enviar mensaje 
+				socket.emit('new message', message);	
+
+				$('#message').val('');
+			});
+
+			$('#getOld').on('click', function(){//evento temporal obtiene mensajes sin leer q esten en la BD
+				$('#messages').html('');
+
+				$.post('/messages',{
+									Remitente:$('#username').val(), 
+									Receptor:$('#destinatario').val()
+									}, 
+					function(messages){					
+
+					if( !messages['msm'] ){
+
+						$.each(messages, function(index, value){
+							var newMessage = $('<li>').append(value.Remitente+" : "+value.Mensaje);
+							$('#messages').append(newMessage);
+						});
+
+					}else{
+						alert( messages['msm'] );
+					}
+					
+				},"json");
+			});
+
+			socket.on('new message', function(message){	
+				if( message.Remitente == $('#destinatario').val() 
+					|| message.Remitente == $('#username').val()){
+
+					var newMessage = $('<li>').append(message.Remitente+" : "+ message.Mensaje );
+					$('#messages').append(newMessage);
+				}
+			});
+
+			socket.on('response error', function(err){	
+				alert(err.msm);
+			});
+
+			socket.on('saveIdSocket', function(res){	
+				console.log('El estado es '+res.status);
+			});
+
+
+	

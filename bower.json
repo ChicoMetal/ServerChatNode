@@ -1,0 +1,22 @@
+{
+  "name": "chatnode",
+  "description": "creando chat con nodejs",
+  "main": "index.js",
+  "authors": [
+    "krlos guzman"
+  ],
+  "license": "ISC",
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.6",
+    "knockout": "^3.4.0"
+  }
+}
