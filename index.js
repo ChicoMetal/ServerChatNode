@@ -22,10 +22,17 @@ var JsonResponseMsm = {
 
 
 //configurar conexion a la BD
-var connection = mysql.createConnection({
+/*var connection = mysql.createConnection({
 	host: 'localhost',
 	user: 'root',
 	password: '',
+	database: 'bienestarcun'
+})*/
+//configurar conexion a la BD remota
+var connection = mysql.createConnection({
+	host: 'www.db4free.net',
+	user: 'krlos1991',
+	password: '19915991',
 	database: 'bienestarcun'
 })
 
