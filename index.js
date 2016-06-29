@@ -153,7 +153,7 @@ io.on('connection', function(socket){
 });
 
 //iniciar el servidor
-server.listen(3000, function(){
+server.listen(process.env.PORT || 3000, function(){
 	console.log('Server iniciado en el puerto 3000');
 });
 
