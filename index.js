@@ -22,20 +22,20 @@ var JsonResponseMsm = {
 
 
 //configurar conexion a la BD
-/*var connection = mysql.createConnection({
+var connection = mysql.createConnection({
 	host: 'localhost',
 	user: 'root',
 	password: '',
 	database: 'bienestarcun'
-})*/
+})
 //configurar conexion a la BD remota
-var connection = mysql.createConnection({
+/*var connection = mysql.createConnection({
 	host: 'www.db4free.net',
 	user: 'krlos1991',
 	password: '19915991',
 	database: 'bienestarcun'
 })
-
+*/
 //crear aplicacion
 var app 	= express();
 var server	= http.createServer(app);
@@ -116,8 +116,11 @@ io.on('connection', function(socket){
 						var idSocket = ReturnSocketId(message.Remitente, message.Destinatario);
 						
 						io.to(socket.id).emit('new message', message);
+						
 						if( idSocket != false ){//verifico si el destinatario tiene un socket creado							
 							io.to("/#"+idSocket).emit('new message', message);
+							UpdateStatusMsm(message.Mensaje, message.Remitente, message.Destinatario); //actualizar estado mensaje
+
 						}
 					}
 
@@ -157,6 +160,22 @@ server.listen(process.env.PORT || 3000, function(){
 	console.log('Server iniciado en el puerto 3000 ||'+process.env.PORT);
 });
 
+function UpdateStatusMsm( Msm, Remitente, Destinatario ){
+//Actualizar el estado del mensaje enviado, cuando el destinatario lo recive inmediatamente
+	
+	var query = 'UPDATE chatpsicologia SET Estado = TRUE WHERE Mensaje = ?\
+				 AND Remitente = ? AND Destinatario = ?';
+
+	connection.query( query, [Msm, Remitente, Destinatario], function(err, result){
+		if( err ){//si hubo un error en la instruccion
+			console.log("Error al actualizar el estado de un mensaje");											
+		}else{//de lo contrario acciono el evento para enviar los mensajes
+			
+			console.log("Estado de mensaje actualizado");
+		}
+
+	});
+}
 
 function ReturnSocketId(Remitente, Receptor){
 //funcion para buscar el socket de la conversasion del destinatario del mensaje
@@ -180,6 +199,7 @@ function ValidateIfSocketExists(socket){
 	}
 	return true;
 }
+
 function VerificarSocketRemitente(Remitente){
 //funcion para verificar q un remitente tenga un socket guardado
 	for (var i=0; i < JsonIdSocket.length; i++){		
@@ -190,6 +210,7 @@ function VerificarSocketRemitente(Remitente){
 	
 	return false;	
 }
+
 function DeleteSocketConversasion(Socket){
 //Elimino el objeto que contenga el socket enviado para eliminar una conversaion
 
